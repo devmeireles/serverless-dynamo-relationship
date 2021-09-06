@@ -53,7 +53,7 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - "Fn::ImportValue": ${self:custom.stage}-UserTableArn
+            - "Fn::ImportValue": ${self:custom.stage}-MainTableArn
 functions:
   createUpdateUser:
     handler: src/api/controllers/UserController.createUpdateUser
@@ -66,11 +66,29 @@ functions:
         #     schemas:
         #       application/json: ${file(./src/schemas/create_book.json)}
   getBooksByUser:
-    handler: src/api/controllers/UserController.getBooksByUser
+    handler: src/api/controllers/BookController.getBooksByUser
     events:
       - http:
           path: user/books/{id}
           method: get
+  listBooks:
+    handler: src/api/controllers/BookController.listBooks
+    events:
+      - http:
+          path: book
+          method: get
+  getBookByID:
+    handler: src/api/controllers/BookController.getBookByID
+    events:
+      - http:
+          path: book/{id}
+          method: get
+  searchBook:
+    handler: src/api/controllers/BookController.searchBooks
+    events:
+      - http:
+          path: book/search
+          method: post
   createUpdateBook:
     handler: src/api/controllers/BookController.createUpdateBook
     events:
@@ -80,7 +98,3 @@ functions:
       - http:
           path: book/{id}
           method: put
-          # authorizer: aws_iam
-        # request:
-        #     schemas:
-        #       application/json: ${file(./src/schemas/create_book.json)}

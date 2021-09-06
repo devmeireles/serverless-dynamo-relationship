@@ -76,8 +76,75 @@ export const getBooksByUser = async (userID: string): Promise<UserBooks> => {
     return userWithBooks
 }
 
+/**
+ * Gets a list of books - must be validated, maybe works with scan shouldn't be the best way to do that
+ * @returns a list of books
+ */
+export const getBooks = async (): Promise<Book[]> => {
+    const books = (await dynamodbLib.scan({
+        TableName,
+        ExpressionAttributeValues: {
+            ":PK": 'USER#',
+            ":SK": 'BOOK#'
+        },
+        ExpressionAttributeNames: {
+            "#PK": "PK",
+            "#SK": "SK"
+        },
+        FilterExpression: "begins_with(#PK, :PK) AND begins_with(#SK, :SK)"
+        // KeyConditionExpression: "begins_with(#PK, :PK) AND begins_with(#SK, :SK)"
+    })).Items as Book[]
+
+    return books
+}
+
+/**
+ * Gets a list of books by a keyword - must be validated, maybe works with scan shouldn't be the best way to do that
+ * @returns a list of books
+ */
+export const searchBooks = async (): Promise<Book[]> => {
+
+    // must be update according to the body request and should be improved to support logical operators
+    const searchParams = {
+        author: 'Lewis',
+        title: 'The'
+    }
+
+    let FilterExpression = "begins_with(#PK, :PK) AND begins_with(#SK, :SK)"
+
+    const ExpressionAttributeNames = {
+        "#PK": "PK",
+        "#SK": "SK"
+    }
+
+    Object.keys(searchParams).map((key, i) => {
+        ExpressionAttributeNames[`#${key}`] = key
+        FilterExpression += ` AND contains(#${key}, :${key})`
+    })
+
+    const ExpressionAttributeValues = {
+        ":PK": 'USER#',
+        ":SK": 'BOOK#'
+    }
+
+    Object.entries(searchParams).map((item, i) => {
+        ExpressionAttributeValues[`:${item[0]}`] = item[1]
+    })
+
+    const books = (await dynamodbLib.scan({
+        TableName,
+        ExpressionAttributeValues,
+        ExpressionAttributeNames,
+        FilterExpression
+    })).Items as Book[]
+
+    return books
+}
+
 export default {
     getBookByID,
     createUpdateBook,
-    getBooksByUser
+    getBooksByUser,
+    getBooks,
+    searchBooks
 }
