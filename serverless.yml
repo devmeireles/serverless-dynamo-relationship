@@ -1,0 +1,86 @@
+service: serverless-boilerplate
+
+plugins:
+  - serverless-bundle
+  - serverless-offline
+  - serverless-dynamodb-local
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  region: sa-east-1
+  environment: ${file(./env.yml):${self:custom.stage}, file(./env.yml):default}
+
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ${self:custom.region}
+  lambdaHashingVersion: "20201221"
+
+  environment:
+    stage: ${self:custom.stage}
+    region: ${self:custom.region}
+    awsLocalDynammoAccessKey: ${self:custom.environment.awsLocalDynammoAccessKey}
+    awsLocalDynammoSecretAccessKey: ${self:custom.environment.awsLocalDynammoSecretAccessKey}
+    MAIN_TABLE: ${file(./database/serverless.yml):custom.MAIN_TABLE_NAME}
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ses:sendTemplatedEmail
+          Resource:
+            - "*"
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - "Fn::ImportValue": ${self:custom.stage}-UserTableArn
+functions:
+  createUpdateUser:
+    handler: src/api/controllers/UserController.createUpdateUser
+    events:
+      - http:
+          path: user
+          method: post
+          # authorizer: aws_iam
+        # request:
+        #     schemas:
+        #       application/json: ${file(./src/schemas/create_book.json)}
+  getBooksByUser:
+    handler: src/api/controllers/UserController.getBooksByUser
+    events:
+      - http:
+          path: user/books/{id}
+          method: get
+  createUpdateBook:
+    handler: src/api/controllers/BookController.createUpdateBook
+    events:
+      - http:
+          path: book
+          method: post
+      - http:
+          path: book/{id}
+          method: put
+          # authorizer: aws_iam
+        # request:
+        #     schemas:
+        #       application/json: ${file(./src/schemas/create_book.json)}
