@@ -5,12 +5,18 @@ import { User } from '../../types/User'
 
 export const createUpdateUser = handler(
     async (event: APIGatewayEvent): Promise<User> => {
-        // console.log(event.requestContext)
         const data = JSON.parse(event.body) as User
         const owner = getUserId(event)
 
-        // console.log(owner)
-
         return await UserModel.createUpdateUser(data, owner)
+    }
+)
+
+export const getUserProfile = handler(
+    async (event: APIGatewayEvent): Promise<User> => {
+        const data = JSON.parse(event.body) as User
+        const owner = getUserId(event)
+
+        return await UserModel.getUserByID(owner)
     }
 )

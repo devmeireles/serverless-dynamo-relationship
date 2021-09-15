@@ -7,13 +7,17 @@ console.log('TableName', TableName)
 
 export const getUserByID = async (id: string): Promise<User> => {
     try {
-        return (await dynamodbLib.get({
+        const item = (await dynamodbLib.get({
             TableName,
             Key: {
                 "PK": `USER#${id}`,
                 "SK": `PROFILE#${id}`,
             }
         })).Item as User
+
+        if (!item) throw new Error("something wrong here");
+
+        return item
 
     } catch (error) {
         console.log(error)
