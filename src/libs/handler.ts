@@ -32,7 +32,7 @@ export function handler<T>(
             }
         } catch (e) {
             /* eslint-disable no-console */
-            console.error('Error occurred while processing request.', e)
+            // console.error('Error occurred while processing request.', e)
             /* eslint-enable no-console */
 
             return {

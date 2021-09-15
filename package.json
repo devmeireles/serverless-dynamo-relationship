@@ -4,22 +4,27 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "serverless offline start --stage dev",
     "deploy-dev": "serverless deploy --aws-profile ownershop --stage dev",
     "deploy-database-dev": "cd database/ && serverless deploy --aws-profile ownershop --stage dev",
     "style:fix": "prettier --write 'src/**/*.ts'",
-    "lint:fix": "eslint ./src --ext .ts --fix"
+    "lint:fix": "eslint ./src --ext .ts --fix",
+    "test": "jest --projects ./test --runInBand",
+    "test:coverage": "set NODE_ENV=test && jest --projects ./test --runInBand --coverage"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.83",
+    "@types/jest": "^27.0.1",
     "@types/uuid": "^8.3.1",
+    "dotenv": "^10.0.0",
+    "jest": "^27.2.0",
     "serverless-bundle": "^5.0.0",
     "serverless-dynamodb-local": "^0.2.40",
-    "serverless-offline": "^8.0.0"
+    "serverless-offline": "^8.0.0",
+    "ts-jest": "^27.0.5"
   },
   "dependencies": {
     "aws-sdk": "^2.983.0",

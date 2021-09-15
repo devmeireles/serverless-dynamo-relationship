@@ -2,7 +2,7 @@ import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 let config = {}
 
-if (process.env.IS_OFFLINE && process.env.stage.includes("dev")) {
+if (process.env.IS_OFFLINE && process.env.stage.includes("dev") || process.env.NODE_ENV === 'test') {
     config = {
         region: 'sa-east-1',
         credentials: {

@@ -3,6 +3,8 @@ import { User } from "types/User"
 
 const TableName = process.env.MAIN_TABLE
 
+console.log('TableName', TableName)
+
 export const getUserByID = async (id: string): Promise<User> => {
     try {
         return (await dynamodbLib.get({
